@@ -1,17 +1,16 @@
-package pubsub
+package main
 
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"time"
-	
+
+	"github.com/go-redis/redis/v8"
 )
 
 var ctx = context.Background()
 
 var rdb *redis.Client
-
 
 var channelName = "report"
 
@@ -28,22 +27,18 @@ func main() {
 	go subscriber(2)
 	go publisher()
 
-
 	c := make(chan int)
 	<-c
 }
 
 func publisher() {
 	for range time.Tick(time.Second * 3) {
-		// Zaman değişkenini oluşturduk
 		t := time.Now().Format("15:04:05")
 		fmt.Println("*************************")
 		fmt.Println("Kanala gönderilen => " + t)
-		// Zaman değişkenini kanala publish ettik
 		rdb.Publish(ctx, channelName, t)
 	}
 }
-
 
 func subscriber(subscriberNumber int) {
 	subs := rdb.Subscribe(ctx, channelName)
